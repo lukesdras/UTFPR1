@@ -12,6 +12,8 @@ using MapWinGIS;
 using AxMapWinGIS;
 using System.Windows.Forms.VisualStyles;
 
+
+
 namespace teste_WFA_SQL
 {
     public partial class Form1 : Form
@@ -27,7 +29,65 @@ namespace teste_WFA_SQL
         public Form1()
         {
             InitializeComponent();
+            InitTimer();
+
+        }
+        //atualizar lotação a cada 5000ms;
+        private Timer timer1;
+        public void InitTimer()
+        {
+            timer1 = new Timer();
+            timer1.Tick += new EventHandler(timer1_Tick);
+            timer1.Interval = 5000;
+            timer1.Start();
+        }
+        public void att_lotacao()
+        {
+            string CAPa = "SELECT CAPACIDADE FROM BLOCOS WHERE ID = 1";
+            maximuA = dal.ReturnSTRsql(CAPa);
+            string CAPb = "SELECT CAPACIDADE FROM BLOCOS WHERE ID = 2";
+            maximuB = dal.ReturnSTRsql(CAPb);
+            string CAPc = "SELECT CAPACIDADE FROM BLOCOS WHERE ID = 3";
+            maximuC = dal.ReturnSTRsql(CAPc);
+            string CAPd = "SELECT CAPACIDADE FROM BLOCOS WHERE ID = 4";
+            maximuD = dal.ReturnSTRsql(CAPd);
+            label17.Text = maximuA;
+            label21.Text = maximuB;
+            label22.Text = maximuC;
+            label23.Text = maximuD;
+
             
+            string PesquisaNome = "%" + textBox1.Text + "%";
+            string Ba = "SELECT * FROM PESSOAS WHERE ID_BLOCO LIKE 1";
+            string Bb = "SELECT * FROM PESSOAS WHERE ID_BLOCO LIKE 2";
+            string Bc = "SELECT * FROM PESSOAS WHERE ID_BLOCO LIKE 3";
+            string Bd = "SELECT * FROM PESSOAS WHERE ID_BLOCO LIKE 4";
+
+            int a = dal.ReturnDataRows(Ba);
+            string qta = Convert.ToString(a);
+            label12.Text = qta;
+            
+            int b = dal.ReturnDataRows(Bb);
+            string qtb = Convert.ToString(b);
+            label13.Text = qtb;
+
+            int c = dal.ReturnDataRows(Bc);
+            string qtc = Convert.ToString(c);
+            label14.Text = qtc;
+
+            int d = dal.ReturnDataRows(Bd);
+            string qtd = Convert.ToString(d);
+            label15.Text = qtd;
+            //notificação, converter string para int com int.Parse
+            if (int.Parse(qta) >= int.Parse(maximuA)-1) notifyIcon1.ShowBalloonTip(5000, "Alerta!!", "Bloco A Capacidade Maxima", (ToolTipIcon)2); //ICON 2 = warning
+            if (int.Parse(qtb) >= int.Parse(maximuB)-1) notifyIcon1.ShowBalloonTip(5000, "Alerta!!", "Bloco B Capacidade Maxima", (ToolTipIcon)2);
+            if (int.Parse(qtc) >= int.Parse(maximuC)-1) notifyIcon1.ShowBalloonTip(5000, "Alerta!!", "Bloco C Capacidade Maxima", (ToolTipIcon)2);
+            if (int.Parse(qtd) >= int.Parse(maximuD)-1) notifyIcon1.ShowBalloonTip(5000, "Alerta!!", "Bloco D Capacidade Maxima", (ToolTipIcon)2);
+        }
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            att_lotacao();
+
         }
         void consultaBanco()
         {
@@ -36,15 +96,31 @@ namespace teste_WFA_SQL
             string pesquisaSexo = "%" + GenderBox.Text + "%";
             string pesquisaResponsavel = "%" + RespBox.Text + "%";
             string pesquisaTAG = "%" + TAGbox.Text + "%";
-            string sqlstr = "SELECT * FROM PESSOAS WHERE NOME like '" + pesquisaNome + "' and REGISTRO like '" + pesquisaNascimento + "' and CARGO like'" + pesquisaSexo + "' and FUNÇAO like '" + pesquisaResponsavel + "' and TAG like '"+ pesquisaTAG +"'";
+            string sqlstr = "SELECT * FROM PESSOAS WHERE NOME like '" + pesquisaNome + "' and REGISTRO like '" + pesquisaNascimento + "' and CARGO like'" + pesquisaSexo + "' and FUNÇAO like '" + pesquisaResponsavel + "' and TAG like '" + pesquisaTAG + "'";
             DataTable tabela = dal.RetornarDataTable(sqlstr);
             dataGridView1.DataSource = tabela;
         }
-        
+
         void consultaLog()
         {
             string PesquisaRegistro = "%" + RegBox2.Text + "%";
             string TAG = "SELECT TAG FROM PESSOAS WHERE REGISTRO LIKE '" + PesquisaRegistro + "'";
+            DataTable tagg = dal.RetornarDataTable(TAG);
+            TagGrid.DataSource = tagg;
+            if ((tagg.Rows.Count > 0))
+            {
+                string tog = tagg.Rows[0]["TAG"].ToString();
+                string LOG = "SELECT * FROM LOG WHERE ID_PESSOA LIKE '" + tog + "'";
+                DataTable tabelalog = dal.RetornarDataTable(LOG);
+                //MessageBox.Show(tog);
+                dataGridView2.DataSource = tabelalog;
+            }
+
+        }
+        void consultaLogNome()
+        {
+            string PesquisaNome = "%" + textBox1.Text + "%";
+            string TAG = "SELECT TAG FROM PESSOAS WHERE NOME LIKE '" + PesquisaNome + "'";
             DataTable tagg = dal.RetornarDataTable(TAG);
             TagGrid.DataSource = tagg;
             if ((tagg.Rows.Count > 0))
@@ -88,8 +164,8 @@ namespace teste_WFA_SQL
             sf_Refeitorio.CreateNewWithShapeID("", ShpfileType.SHP_POINT);
 
             //Inserir dados no combobox Sexo:
-           // GenderBox.Items.Add("M");
-          //  GenderBox.Items.Add("F");
+            // GenderBox.Items.Add("M");
+            //  GenderBox.Items.Add("F");
 
 
             //axMap1.Projection = MapWinGIS.tkMapProjection.PROJECTION_WGS84;
@@ -108,7 +184,7 @@ namespace teste_WFA_SQL
             //axMap1.Longitude = -52.386f;
 
             // definição do xtent do mapa
-            axMap1.CursorMode= tkCursorMode.cmZoomIn;
+            axMap1.CursorMode = tkCursorMode.cmZoomIn;
             axMap1.ZoomIn(15);
             //axMap1.ZoomPercent = 17;
             Extents ext = new Extents();
@@ -123,9 +199,9 @@ namespace teste_WFA_SQL
             //proj = axMap1.Projection;
 
 
-            
 
-            
+
+
 
 
             axMap1.AddLayer(sf_blocoA, true);
@@ -160,15 +236,15 @@ namespace teste_WFA_SQL
             shp.InsertPoint(pnt, 0);
             sf_blocoA.EditInsertShape(shp, 0);
 
-            sf_blocoA.Labels.AddLabel("BLOCO A", 359064.00 -10, 7338319.27-5);
-            
-            
+            sf_blocoA.Labels.AddLabel("BLOCO A", 359064.00 - 10, 7338319.27 - 5);
+
+
 
             //////////////////////////////////////BLOCO B//////////////////////////////////////
 
             MapWinGIS.Point pnt1 = new MapWinGIS.Point();
-            pnt1.x = 359056.22; 
-            pnt1.y = 7338367.46; 
+            pnt1.x = 359056.22;
+            pnt1.y = 7338367.46;
 
             Shape shp1 = new MapWinGIS.Shape();
             shp1.Create(ShpfileType.SHP_POINT);
@@ -206,7 +282,7 @@ namespace teste_WFA_SQL
 
             sf_blocoD.Labels.AddLabel("BLOCO D", 359089.53 + 2, 7338316.78 + 2);
 
-            
+
 
             //////////////////////////////////////BLOCO E//////////////////////////////////////
 
@@ -234,7 +310,7 @@ namespace teste_WFA_SQL
             sf_blocoF.EditInsertShape(shp5, 0);
 
             sf_blocoF.Labels.AddLabel("BLOCO F", 359126.83 + 2, 7338268.99 + 2);
-            
+
 
             //////////////////////////////////////BLOCO H//////////////////////////////////////
 
@@ -248,7 +324,7 @@ namespace teste_WFA_SQL
             sf_blocoH.EditInsertShape(shp6, 0);
 
             sf_blocoH.Labels.AddLabel("BLOCO H", 359143.90 + 2, 7338242.69 + 2);
-            
+
 
             //////////////////////////////////////BLOCO G//////////////////////////////////////
 
@@ -262,7 +338,7 @@ namespace teste_WFA_SQL
             sf_blocoG.EditInsertShape(shp7, 0);
 
             sf_blocoG.Labels.AddLabel("BLOCO G", 359132.00 + 2, 7338346.00 + 2);
-            
+
 
             //////////////////////////////////////REFEITORIO//////////////////////////////////////
 
@@ -330,7 +406,7 @@ namespace teste_WFA_SQL
 
             Utils utils8 = new Utils(); // perfumaria 
             sf_blocoH.DefaultDrawingOptions.SetDefaultPointSymbol(tkDefaultPointSymbol.dpsCircle);
-           //sf_blocoH.DefaultDrawingOptions.FillBgColor = utils8.ColorByName(tkMapColor.RoyalBlue);
+            //sf_blocoH.DefaultDrawingOptions.FillBgColor = utils8.ColorByName(tkMapColor.RoyalBlue);
             sf_blocoH.DefaultDrawingOptions.FillColor = utils8.ColorByName(tkMapColor.RoyalBlue);
             sf_blocoH.DefaultDrawingOptions.LineColor = utils8.ColorByName(tkMapColor.Black);
             sf_blocoH.DefaultDrawingOptions.PointSize = 12;
@@ -338,7 +414,7 @@ namespace teste_WFA_SQL
 
             Utils utils9 = new Utils(); // perfumaria 
             sf_Refeitorio.DefaultDrawingOptions.SetDefaultPointSymbol(tkDefaultPointSymbol.dpsCircle);
-            
+
             sf_Refeitorio.DefaultDrawingOptions.FillColor = utils9.ColorByName(tkMapColor.Yellow);
             sf_Refeitorio.DefaultDrawingOptions.LineColor = utils9.ColorByName(tkMapColor.Black);
             sf_Refeitorio.DefaultDrawingOptions.PointSize = 12;
@@ -421,9 +497,9 @@ namespace teste_WFA_SQL
             }
         }
 
-        
 
-       
+
+
 
         private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
@@ -438,7 +514,7 @@ namespace teste_WFA_SQL
             }
             catch (Exception b)
             {
-                label1.Text = "Conexão falhou, verifique conexão com a internet!" + b.Message ;
+                label1.Text = "Conexão falhou, verifique conexão com a internet!" + b.Message;
             }
         }
 
@@ -446,13 +522,16 @@ namespace teste_WFA_SQL
         {
             try
             {
-                consultaBanco();
+                string registro =  BirthBox.Text;
+                string sqlstr = "DELETE FROM PESSOAS WHERE REGISTRO = '" + registro + "'";
+                dal.ExecutarComandoSQL(sqlstr);
+                BirthBox.Text ="a";
             }
 
             catch
             {
-                // MessageBox.Show("Falhou a conexão!!!!!!!");
-                label1.Text = "Conexão falhou, verifique conexão com a internet!";
+                 MessageBox.Show("ALGO DEU ERRADO AO TENTAR DELETAR");
+                
             }
         }
 
@@ -470,7 +549,7 @@ namespace teste_WFA_SQL
             RespBox.Text = "";
             TAGbox.Text = "";
 
-            
+
         }
 
         private void button5_Click_1(object sender, EventArgs e)
@@ -519,7 +598,7 @@ namespace teste_WFA_SQL
             }
         }
 
-        
+
 
         private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
@@ -600,54 +679,56 @@ namespace teste_WFA_SQL
             Pesquisa_Interior_Alunos.Visible = false;
         }
 
-        
+
         private void axMap1_ShapeIdentified(object sender, _DMapEvents_ShapeIdentifiedEvent e)
         {
             // Pesquisa_Interior.Visible = false;
             contextMenuStrip1.Visible = true;
             Pesquisa_Interior_PROF.Visible = true;
             Pesquisa_Interior_Alunos.Visible = true;
-            double id_shape=e.shapeIndex;
+            double id_shape = e.shapeIndex;
             id_layer = e.layerHandle;
-            string nome_layer = "";
+            //string nome_layer = "";
+
+
             id_layer++;
-            
-            
-
-            switch (id_layer)
-            {
-                case 1:
-                    nome_layer = "BLOCO_A";
-                    break;
-                case 2:
-                    nome_layer = "BLOCO_B";
-                    break;
-                case 3:
-                    nome_layer = "BLOCO_C";
-                    break;
-                case 4:
-                    nome_layer = "BLOCO_D";
-                    break;
-                case 5:
-                    nome_layer = "BLOCO_E";
-                    break;
-                case 6:
-                    nome_layer = "BLOCO_F";
-                    break;
-                case 7:
-                    nome_layer = "BLOCO_G";
-                    break;
-                case 8:
-                    nome_layer = "BLOCO_H";
-                    break;
-                case 9:
-                    nome_layer = "Refeitorio";
-                    break;
 
 
-            }
+            /* USAMOS DIRETAMENTE OS BLOCOS COMO NUMEROS NO BANCO
+                        switch (id_layer)
+                        {
+                            case 1:
+                                nome_layer = "BLOCO_A";
+                                break;
+                            case 2:
+                                nome_layer = "BLOCO_B";
+                                break;
+                            case 3:
+                                nome_layer = "BLOCO_C";
+                                break;
+                            case 4:
+                                nome_layer = "BLOCO_D";
+                                break;
+                            case 5:
+                                nome_layer = "BLOCO_E";
+                                break;
+                            case 6:
+                                nome_layer = "BLOCO_F";
+                                break;
+                            case 7:
+                                nome_layer = "BLOCO_G";
+                                break;
+                            case 8:
+                                nome_layer = "BLOCO_H";
+                                break;
+                            case 9:
+                                nome_layer = "Refeitorio";
+                                break;
 
 
+                        }
+
+                        */
 
 
         }
@@ -663,11 +744,11 @@ namespace teste_WFA_SQL
 
         }
 
-        
+
         private void Pesquisa_Interior_PROF_Click(object sender, EventArgs e)
         {
 
-            string sqlstr = "SELECT * FROM PESSOAS WHERE ID_BLOCO= '" + id_layer + "' and CARGO = 'Professor' " ;
+            string sqlstr = "SELECT * FROM PESSOAS WHERE ID_BLOCO= '" + id_layer + "' and CARGO = 'Professor' ";
             DataTable tabela = dal.RetornarDataTable(sqlstr);
 
             panel_PESQUISA_BLOCO.Visible = true;
@@ -691,11 +772,11 @@ namespace teste_WFA_SQL
         private void logDoBlocoToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            Promptt Prompt = new Promptt("Adicionar Data no formato DD-MM-AA" , "Atenção");
-            
+            Promptt Prompt = new Promptt("Adicionar Data no formato DD-MM-AAAA", "Atenção");
+
             string resultado = Prompt.Result;
 
-            string sqlstr = "SELECT * FROM LOG WHERE ID_BLOCO = '" + id_layer + "' and DATA = '" + resultado + "' ";
+            string sqlstr = "SELECT LOG.DATA, LOG.HORA, LOG.ACAO, LOG.ID_BLOCO, PESSOAS.NOME, PESSOAS.REGISTRO FROM LOG INNER JOIN PESSOAS ON LOG.ID_PESSOA = PESSOAS.TAG WHERE LOG.ID_BLOCO = '" + id_layer + "' and LOG.DATA = '" + resultado + "' ";
 
             DataTable tabela = dal.RetornarDataTable(sqlstr);
 
@@ -711,7 +792,7 @@ namespace teste_WFA_SQL
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-
+            consultaLogNome();
         }
 
         private void textBox2_TextChanged_1(object sender, EventArgs e)
@@ -723,5 +804,95 @@ namespace teste_WFA_SQL
         {
             consultaLog();
         }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void dataGridView_PESQUISA_BLOCO_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+        //Att lotação maxima
+        string maximuA = "100";
+        string maximuB = "100";
+        string maximuC = "100";
+        string maximuD = "100";
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            att_lotacao();
+        }
+        //definir lotação maxima
+        private void button7_Click(object sender, EventArgs e)
+        {
+            string palavra = maximo.Text;
+            int number;
+
+
+            if (checkBox1.Checked)
+            {
+                if (int.TryParse(palavra, out number)) //de algum jeito faz so aceitar numeros kkkk
+                {
+                    string qry1 = "UPDATE BLOCOS SET CAPACIDADE = " + maximo.Text + " WHERE ID = 1 ";
+                    dal.ExecutarComandoSQL(qry1);
+                }
+                else
+                {
+                    MessageBox.Show("Insira um valor numerico");
+                }
+            }
+            if (checkBox2.Checked)
+            {
+                if (int.TryParse(palavra, out number))
+                {
+                    string qry2 = "UPDATE BLOCOS SET CAPACIDADE = " + maximo.Text + " WHERE ID = 2 ";
+                    dal.ExecutarComandoSQL(qry2);
+                }
+                else
+                {
+                    MessageBox.Show("Insira um valor numerico");
+                }
+            }
+            if (checkBox3.Checked)
+            {
+                if (int.TryParse(palavra, out number))
+                {
+                    string qry3 = "UPDATE BLOCOS SET CAPACIDADE = " + maximo.Text + " WHERE ID = 3 ";
+                    dal.ExecutarComandoSQL(qry3);
+                }
+                else
+                {
+                    MessageBox.Show("Insira um valor numerico");
+                }
+            }
+            if (checkBox4.Checked)
+
+            {
+                if (int.TryParse(palavra, out number))
+                {
+                    string qry4 = "UPDATE BLOCOS SET CAPACIDADE = " + maximo.Text + " WHERE ID = 4 ";
+                    dal.ExecutarComandoSQL(qry4);
+                    
+                }
+                else
+                {
+                    MessageBox.Show("Insira um valor numerico");
+                }
+            }
+            att_lotacao();
+            maximo.Text = "";
+
+
+            
+        }
+
+        private void tab_CADASTRO_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
+
+

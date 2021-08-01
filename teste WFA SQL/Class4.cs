@@ -12,8 +12,7 @@ namespace teste_WFA_SQL
     {
 
 
-        private static string Server = "database-1.c9rst2cteqor.sa-east-1.rds.amazonaws.com;";//191.7.188.67
-        //private static string Server = "191.7.188.67";
+        private static string Server = "database-1.c9rst2cteqor.sa-east-1.rds.amazonaws.com;";
         private static string Database = "Cadastro";
         private static string User = "lukesdras";
         private static string Password = "gostoso12";
@@ -32,6 +31,7 @@ namespace teste_WFA_SQL
         {
             MySqlCommand Command = new MySqlCommand(sql, Connection);
             Command.ExecuteNonQuery();
+
         }
 
         //Retorna Dados do Banco
@@ -42,16 +42,30 @@ namespace teste_WFA_SQL
             DataTable Dados = new DataTable();
             DataAdaptar.Fill(Dados);
             return Dados;
-
-
-
-
-
         }
 
-
-
-
+        //Contar numero de Rows
+        public int ReturnDataRows(string sql)
+        {
+            MySqlCommand Command = new MySqlCommand(sql, Connection);
+            MySqlDataAdapter DataAdaptar = new MySqlDataAdapter(Command);
+            DataTable get = new DataTable();
+            DataAdaptar.Fill(get);
+            int rows = get.Rows.Count;
+            return rows;
+ 
+        }
+        public string ReturnSTRsql(string sql)
+        {
+            MySqlCommand Command = new MySqlCommand(sql, Connection);
+            MySqlDataReader get;
+            get = Command.ExecuteReader();
+            get.Read();
+            string retorno;
+            retorno = get.GetString(0);
+            get.Close();
+            return retorno;
+        }
 
 
 
