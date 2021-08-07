@@ -8,7 +8,7 @@ MFRC522
 
 Raspberry PI library for MFRC522.
 
-Example program, BlocoA_IN or OUT, which will read rfid cards and insert people into the Block.
+Example program, BlocoA_IN or OUT, which will read rfid cards and insert people into the Building.
 
 This library uses the bcm2835 library found at:
 http://www.airspayce.com/mikem/bcm2835/bcm2835-1.50.tar.gz 
