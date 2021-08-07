@@ -1,9 +1,11 @@
+https://github.com/paguz/RPi-RFID
+ALL RIGHTS FROM THIS GUY ABOVE
 MFRC522
 =======
 
 Raspberry PI library for MFRC522.
 
-Example program, Read.cpp, which will read rfid cards.
+Example program, BlocoA_IN or OUT, which will read rfid cards and insert people into the Block.
 
 This library uses the bcm2835 library found at:
 http://www.airspayce.com/mikem/bcm2835/bcm2835-1.50.tar.gz 
@@ -25,7 +27,7 @@ Fetch the tar-file and install it:
 
 To build:
 
-  g++ MFRC522.cpp Read.cpp -std=c++11 -lbcm2835
+  g++ MFRC522.cpp BlocoA_IN.cpp -std=c++11 -lbcm2835
 
 Pin Layout
 ----------
